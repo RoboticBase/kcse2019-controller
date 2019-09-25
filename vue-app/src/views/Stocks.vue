@@ -1,9 +1,6 @@
 <template>
   <div class="stocks container">
     <Header/>
-    <div v-if="message">
-      <b-alert :variant="variant" show>{{ message }}</b-alert>
-    </div>
     <h3>在庫引当と出荷指示</h3>
     <table class="table">
       <thead>
@@ -28,16 +25,31 @@
       </tbody>
     </table>
     <Shipping/>
+    <b-alert
+      :show="dismissCountDown"
+      :variant="variant"
+      dismissible
+      @dismissed="dismissCountDown=0"
+      @dismiss-count-down="countDownChanged"
+    >
+      {{ message }}
+    </b-alert>
   </div>
 </template>
 
 <script>
 import Header from '@/components/Header.vue'
 import Shipping from '@/components/Shipping.vue'
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'stocks',
+  data: function () {
+    return {
+      dismissSecs: 5,
+      dismissCountDown: 0
+    }
+  },
   components: {
     Header,
     Shipping
@@ -50,6 +62,20 @@ export default {
   },
   methods: {
     ...mapActions(['listStocksAction']),
+    ...mapMutations(['updateMessage']),
+    countDownChanged(dismissCountDown) {
+      this.dismissCountDown = dismissCountDown
+      if (this.dismissCountDown == 0) {
+        this.updateMessage({message: '', variant: ''})
+      }
+    }
+  },
+  watch: {
+    message(newValue, oldValue) {
+      if (newValue) {
+        this.dismissCountDown = this.dismissSecs
+      }
+    }
   }
 }
 </script>

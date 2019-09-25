@@ -3,7 +3,7 @@ import os
 from flask import abort, jsonify, request
 from flask.views import MethodView
 
-from src import const
+from src import const, orion
 from src.errors import RobotBusyError, RBError
 
 import requests
@@ -13,26 +13,16 @@ ZAICO_HEADER = {
     'Authorization': f'Bearer {ZAICO_TOKEN}',
     'Content-Type': 'application/json'
 }
-SHIPMENTAPI_ENDPOINT = os.environ[const.SHIPMENTAPI_ENDPOINT]
+
+MOBILE_ROBOT_SERVICEPATH = os.environ.get(const.MOBILE_ROBOT_SERVICEPATH, '')
+MOBILE_ROBOT_TYPE = os.environ.get(const.MOBILE_ROBOT_TYPE, '')
+MOBILE_ROBOT_ID = os.environ.get(const.MOBILE_ROBOT_ID, '')
 
 DESTINATIONS = [
     {
         'id': 0,
-        'name': '',
-    },
-    {
-        'id': 1,
-        'name': '会議室1中',
-    },
-    {
-        'id': 2,
-        'name': '会議室2中',
-    },
-    {
-        'id': 3,
-        'name': '会議室3中',
+        'name': '目的地',
     }
-
 ]
 
 
@@ -228,11 +218,6 @@ class ShipmentAPI(RBMixin, MethodView):
         return is_compensated, compensated
 
     def _notify_shipment(self, res):
-        result = requests.post(SHIPMENTAPI_ENDPOINT, headers=self.rb_headers, json=res)
-        if 200 <= result.status_code < 300:
-            return result.json()
-        elif result.status_code == 423:
-            j = result.json()
-            raise RobotBusyError(j['message'], status_code=result.status_code, robot_id=j['id'])
-        else:
-            raise RBError(result.text, status_code=result.status_code)
+        data = const.CMD_TML.replace('<<CMD>>', const.CMD_SHIPMENT)
+        orion.patch_attr(MOBILE_ROBOT_SERVICEPATH, MOBILE_ROBOT_TYPE, MOBILE_ROBOT_ID, data)
+        return {'delivery_robot': {'type': MOBILE_ROBOT_TYPE, 'id': MOBILE_ROBOT_ID}}

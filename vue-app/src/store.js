@@ -32,7 +32,6 @@ const store = new Vuex.Store({
     postShipmentAction(context, payload) {
       postShipment(payload).then(res => {
         if (res.is_busy) {
-          console.log('@@@@', res)
           let message = '配送ロボット(' + res.data.robot_id + ')は作業中のため、出荷指示は取り消されました。少し待ってからもう一度お試しください。'
           context.commit('updateMessage', {message: message, variant: 'warning'})
           context.dispatch('listStocksAction')

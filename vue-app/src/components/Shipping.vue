@@ -40,15 +40,21 @@ export default {
         }
       })
 
-      if (this.selectedDestination != '' && items.length > 0) {
-        let payload = {
-          destination_id: this.selectedDestination,
-          items: items
-        }
-        this.postShipmentAction(payload)
-      } else {
-        this.$store.commit('updateMessage', {message: '入力値に誤りがあります', variant: 'warning'})
+      if (items.length == 0) {
+        this.$store.commit('updateMessage', {message: '引当数量を入力してください', variant: 'warning'})
+        return
       }
+
+      let dest_id = this.destinations[0].id;
+      if (this.selectedDestination != '') {
+        dest_id = this.selectedDestination
+      }
+
+      let payload = {
+        destination_id: dest_id,
+        items: items
+      }
+      this.postShipmentAction(payload)
     }
   }
 }
