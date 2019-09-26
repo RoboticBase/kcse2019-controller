@@ -12,7 +12,7 @@ ZAICO_ENDPOINT = 'https://web.zaico.co.jp/api/v1/inventories/'
 ORION_PATH = '/v2/entities/<<ID>>/attrs?type=<<TYPE>>'
 
 CMD_TML = '{"move": {"value": "<<CMD>>"}}'
-CMD_SHIPMENT = 'inventry'
+CMD_SHIPMENT = 'inventory'
 CMD_DELIVERY = 'destination'
 CMD_RECEIVING = 'home'
 
