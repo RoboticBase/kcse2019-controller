@@ -4,7 +4,7 @@ from flask import abort, jsonify, request
 from flask.views import MethodView
 
 from src import const, orion
-from src.errors import RobotBusyError, RBError
+from src.errors import RobotBusyError
 
 import requests
 
@@ -99,6 +99,11 @@ class RBMixin:
                 self._rb_headers['Authorization'] = f'Bearer {os.environ[const.SHIPMENTAPI_TOKEN]}'
         return self._rb_headers
 
+    def send_cmd(self, cmd):
+        data = const.CMD_TML.replace('<<CMD>>', cmd)
+        orion.patch_attr(MOBILE_ROBOT_SERVICEPATH, MOBILE_ROBOT_TYPE, MOBILE_ROBOT_ID, data)
+        return {'delivery_robot': {'type': MOBILE_ROBOT_TYPE, 'id': MOBILE_ROBOT_ID}}
+
 
 class ShipmentAPI(RBMixin, MethodView):
     NAME = 'shipmentapi'
@@ -116,7 +121,7 @@ class ShipmentAPI(RBMixin, MethodView):
             zaico_res = self._update_zaico(payload)
             print(f'zaico_result {zaico_res}')
 
-            rb_res = self._notify_shipment(zaico_res)
+            rb_res = self.send_cmd(const.CMD_SHIPMENT)
             print(f'rb_result {rb_res}')
 
             zaico_res.update(rb_res)
@@ -217,7 +222,17 @@ class ShipmentAPI(RBMixin, MethodView):
         print(f'compensate zaico result: is_compensated={is_compensated}, compensated={compensated}')
         return is_compensated, compensated
 
-    def _notify_shipment(self, res):
-        data = const.CMD_TML.replace('<<CMD>>', const.CMD_SHIPMENT)
-        orion.patch_attr(MOBILE_ROBOT_SERVICEPATH, MOBILE_ROBOT_TYPE, MOBILE_ROBOT_ID, data)
-        return {'delivery_robot': {'type': MOBILE_ROBOT_TYPE, 'id': MOBILE_ROBOT_ID}}
+
+class DeliveryAPI(RBMixin, MethodView):
+    NAME = 'deliveryapi'
+
+    def post(self):
+        try:
+            rb_res = self.send_cmd(const.CMD_DELIVERY)
+            print(f'rb_result {rb_res}')
+
+            return jsonify(rb_res), 201
+        except RobotBusyError as e:
+            return jsonify({'result': 'robot_busy', 'message': str(e), 'robot_id': e.robot_id}), e.status_code
+        except Exception as e:
+            return jsonify({'result': 'server error', 'message': str(e), 'robot_id': e.robot_id}), e.status_code

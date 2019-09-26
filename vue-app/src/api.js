@@ -3,6 +3,7 @@ import axios from 'axios'
 const stockEndpoint = '/api/v1/stocks/'
 const destinationEndpoint = '/api/v1/destinations/'
 const shipmentEndpoint = '/api/v1/shipments/'
+const deliveryEndpoint = '/api/v1/deliveries/'
 
 export async function listStocks() {
   try {
@@ -27,6 +28,19 @@ export async function listDestinations() {
 export async function postShipment(payload) {
   try {
     const res = await axios.post(shipmentEndpoint, payload)
+    return {data: res.data, is_busy: false}
+  } catch (error) {
+    if (error.response.status == 423) {
+      return {data: error.response.data, is_busy: true}
+    }
+    // eslint-disable-next-line
+    console.log('error:' + error)
+  }
+}
+
+export async function postDelivery() {
+  try {
+    const res = await axios.post(deliveryEndpoint, {})
     return {data: res.data, is_busy: false}
   } catch (error) {
     if (error.response.status == 423) {

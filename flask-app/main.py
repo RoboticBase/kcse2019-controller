@@ -24,6 +24,9 @@ app.add_url_rule('/api/v1/destinations/<destination_id>/', view_func=destination
 shipment_api_view = api.ShipmentAPI.as_view(api.ShipmentAPI.NAME)
 app.add_url_rule('/api/v1/shipments/', view_func=shipment_api_view, methods=['POST', ])
 
+delivery_api_view = api.DeliveryAPI.as_view(api.DeliveryAPI.NAME)
+app.add_url_rule('/api/v1/deliveries/', view_func=delivery_api_view, methods=['POST', ])
+
 app.register_blueprint(vue.app)
 app.register_blueprint(errors.app)
 

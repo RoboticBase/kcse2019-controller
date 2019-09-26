@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { listStocks, listDestinations, postShipment } from './api'
+import { listStocks, listDestinations, postShipment, postDelivery } from './api'
 
 Vue.use(Vuex)
 
@@ -43,6 +43,19 @@ const store = new Vuex.Store({
           let message = '配送ロボット(' + res.data.delivery_robot.id + ')への出荷指示を行いました。出荷先: ' + res.data.destination.name + ', 出荷商品: ' + itemStr
           context.commit('updateMessage', {message: message, variant: 'success'})
           context.dispatch('listStocksAction')
+        }
+      })
+    },
+
+    postDeliveryAction(context) {
+      postDelivery().then(res => {
+        if (res.is_busy) {
+          let message = '配送ロボット(' + res.data.robot_id + ')は作業中のため、配送できません。少し待ってからもう一度お試しください。'
+          context.commit('updateMessage', {message: message, variant: 'warning'})
+        }
+        else {
+          let message = '配送ロボット(' + res.data.delivery_robot.id + ')が配送を開始しました'
+          context.commit('updateMessage', {message: message, variant: 'success'})
         }
       })
     },
