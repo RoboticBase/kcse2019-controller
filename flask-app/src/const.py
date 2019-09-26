@@ -14,7 +14,7 @@ ORION_PATH = '/v2/entities/<<ID>>/attrs?type=<<TYPE>>'
 CMD_TML = '{"move": {"value": "<<CMD>>"}}'
 CMD_SHIPMENT = 'inventry'
 CMD_DELIVERY = 'destination'
-CMD_RECEIVE = 'home'
+CMD_RECEIVING = 'home'
 
 VUE_TEMPLATE_FOLDER = '../vue-app/dist'
 VUE_STATIC_FOLDER = '../vue-app/dist/static'

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { listStocks, listDestinations, postShipment, postDelivery } from './api'
+import { listStocks, listDestinations, postShipment, postDelivery, postReceiving } from './api'
 
 Vue.use(Vuex)
 
@@ -59,6 +59,20 @@ const store = new Vuex.Store({
         }
       })
     },
+
+    postReceivingAction(context) {
+      postReceiving().then(res => {
+        if (res.is_busy) {
+          let message = '配送ロボット(' + res.data.robot_id + ')は作業中のため、まだ受け取れません。少し待ってからもう一度お試しください。'
+          context.commit('updateMessage', {message: message, variant: 'warning'})
+        }
+        else {
+          let message = '配送ロボット(' + res.data.delivery_robot.id + ')が配送を完了しました'
+          context.commit('updateMessage', {message: message, variant: 'success'})
+        }
+      })
+    },
+
   },
   mutations: {
     listStocks(state, stocks) {

@@ -7,6 +7,9 @@
     <div class="row">
       <div class="col-sm"><router-link to="/deliveries">配送</router-link></div>
     </div>
+    <div class="row">
+      <div class="col-sm"><router-link to="/receivings">受け取り</router-link></div>
+    </div>
   </div>
 </template>
 

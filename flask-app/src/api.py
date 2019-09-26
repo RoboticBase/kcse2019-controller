@@ -223,12 +223,11 @@ class ShipmentAPI(RBMixin, MethodView):
         return is_compensated, compensated
 
 
-class DeliveryAPI(RBMixin, MethodView):
-    NAME = 'deliveryapi'
+class __DeliveryReceiveAPIBase(RBMixin, MethodView):
 
     def post(self):
         try:
-            rb_res = self.send_cmd(const.CMD_DELIVERY)
+            rb_res = self.send_cmd(self.cmd)
             print(f'rb_result {rb_res}')
 
             return jsonify(rb_res), 201
@@ -236,3 +235,19 @@ class DeliveryAPI(RBMixin, MethodView):
             return jsonify({'result': 'robot_busy', 'message': str(e), 'robot_id': e.robot_id}), e.status_code
         except Exception as e:
             return jsonify({'result': 'server error', 'message': str(e), 'robot_id': e.robot_id}), e.status_code
+
+
+class DeliveryAPI(__DeliveryReceiveAPIBase):
+    NAME = 'deliveryapi'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cmd = const.CMD_DELIVERY
+
+
+class ReceivingAPI(__DeliveryReceiveAPIBase):
+    NAME = 'receivingapi'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cmd = const.CMD_RECEIVING

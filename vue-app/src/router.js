@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Stocks from './views/Stocks.vue'
 import Deliveries from './views/Deliveries.vue'
+import Receivings from './views/Receivings.vue'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -28,6 +29,11 @@ export default new Router({
       path: '/deliveries',
       name: 'deliveries',
       component: Deliveries
+    },
+    {
+      path: '/receivings',
+      name: 'receivings',
+      component: Receivings
     }
   ]
 })
