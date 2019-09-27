@@ -30,16 +30,15 @@ The API server requires some Environment Variables like below:
 ## Getting started
 1. compile WebUI
 
-```
-$ docker run -it -v $(pwd)/vue-app:/opt/vue-app -w /opt/vue-app node:10.16-alpine /bin/ash -c 'rm -rf dist && rm -rf node_modules && npm install && npm audit fix && npm run build'
-```
-
+    ```
+    $ docker run -it -v $(pwd)/vue-app:/opt/vue-app -w /opt/vue-app node:10.16-alpine /bin/ash -c 'rm -rf dist && rm -rf node_modules && npm install && npm audit fix && npm run build'
+    ```
 1. set the environment variables
 1. start API server
 
-```
-$ cd flask-app && ./main.py
-```
+    ```
+    $ cd flask-app && ./main.py
+    ```
 
 ## License
 
