@@ -3,8 +3,8 @@ import os
 from flask import abort, jsonify, request
 from flask.views import MethodView
 
-from src import const
-from src.errors import RobotBusyError, RBError
+from src import const, orion
+from src.errors import RobotBusyError
 
 import requests
 
@@ -13,26 +13,16 @@ ZAICO_HEADER = {
     'Authorization': f'Bearer {ZAICO_TOKEN}',
     'Content-Type': 'application/json'
 }
-SHIPMENTAPI_ENDPOINT = os.environ[const.SHIPMENTAPI_ENDPOINT]
+
+MOBILE_ROBOT_SERVICEPATH = os.environ.get(const.MOBILE_ROBOT_SERVICEPATH, '')
+MOBILE_ROBOT_TYPE = os.environ.get(const.MOBILE_ROBOT_TYPE, '')
+MOBILE_ROBOT_ID = os.environ.get(const.MOBILE_ROBOT_ID, '')
 
 DESTINATIONS = [
     {
         'id': 0,
-        'name': '',
-    },
-    {
-        'id': 1,
-        'name': '会議室1中',
-    },
-    {
-        'id': 2,
-        'name': '会議室2中',
-    },
-    {
-        'id': 3,
-        'name': '会議室3中',
+        'name': '目的地',
     }
-
 ]
 
 
@@ -109,6 +99,11 @@ class RBMixin:
                 self._rb_headers['Authorization'] = f'Bearer {os.environ[const.SHIPMENTAPI_TOKEN]}'
         return self._rb_headers
 
+    def send_cmd(self, cmd):
+        data = const.CMD_TML.replace('<<CMD>>', cmd)
+        orion.patch_attr(MOBILE_ROBOT_SERVICEPATH, MOBILE_ROBOT_TYPE, MOBILE_ROBOT_ID, data)
+        return {'delivery_robot': {'type': MOBILE_ROBOT_TYPE, 'id': MOBILE_ROBOT_ID}}
+
 
 class ShipmentAPI(RBMixin, MethodView):
     NAME = 'shipmentapi'
@@ -126,7 +121,7 @@ class ShipmentAPI(RBMixin, MethodView):
             zaico_res = self._update_zaico(payload)
             print(f'zaico_result {zaico_res}')
 
-            rb_res = self._notify_shipment(zaico_res)
+            rb_res = self.send_cmd(const.CMD_SHIPMENT)
             print(f'rb_result {rb_res}')
 
             zaico_res.update(rb_res)
@@ -227,12 +222,32 @@ class ShipmentAPI(RBMixin, MethodView):
         print(f'compensate zaico result: is_compensated={is_compensated}, compensated={compensated}')
         return is_compensated, compensated
 
-    def _notify_shipment(self, res):
-        result = requests.post(SHIPMENTAPI_ENDPOINT, headers=self.rb_headers, json=res)
-        if 200 <= result.status_code < 300:
-            return result.json()
-        elif result.status_code == 423:
-            j = result.json()
-            raise RobotBusyError(j['message'], status_code=result.status_code, robot_id=j['id'])
-        else:
-            raise RBError(result.text, status_code=result.status_code)
+
+class __DeliveryReceiveAPIBase(RBMixin, MethodView):
+
+    def post(self):
+        try:
+            rb_res = self.send_cmd(self.cmd)
+            print(f'rb_result {rb_res}')
+
+            return jsonify(rb_res), 201
+        except RobotBusyError as e:
+            return jsonify({'result': 'robot_busy', 'message': str(e), 'robot_id': e.robot_id}), e.status_code
+        except Exception as e:
+            return jsonify({'result': 'server error', 'message': str(e), 'robot_id': e.robot_id}), e.status_code
+
+
+class DeliveryAPI(__DeliveryReceiveAPIBase):
+    NAME = 'deliveryapi'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cmd = const.CMD_DELIVERY
+
+
+class ReceivingAPI(__DeliveryReceiveAPIBase):
+    NAME = 'receivingapi'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cmd = const.CMD_RECEIVING
