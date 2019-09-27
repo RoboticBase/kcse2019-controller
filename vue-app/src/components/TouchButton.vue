@@ -3,7 +3,7 @@
     <div class="row form-group">
       <div class="col-sm-12 align-self-end">
         <button type="submit" class="btn btn-outline-secondary btn-block btn-lg touchButton"
-          @click="click" @touchstart="">
+          @click="click" ontouchstart="">
           {{ buttonText }}
         </button>
       </div>

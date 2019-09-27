@@ -36,7 +36,7 @@ export default {
     }
   },
   watch: {
-    message(newValue, oldValue) {
+    message(newValue) {
       if (newValue) {
         this.dismissCountDown = this.dismissSecs
       }
