@@ -5,6 +5,9 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
+pytest = "*"
+lazy-import = "*"
+pytest-mock = "*"
 
 [packages]
 flask = "~=1.0.0"
