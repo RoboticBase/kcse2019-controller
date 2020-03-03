@@ -24,7 +24,7 @@ VUE_STATIC_FOLDER = 'VUE_STATIC_FOLDER'
 
 @pytest.fixture(scope='function', autouse=True)
 def setup_environments():
-    os.environ[ORION_ENDPOINT] = 'ORION_ENDPOINT'
+    os.environ[ORION_ENDPOINT] = 'http://ORION_ENDPOINT'
     os.environ[FIWARE_SERVICE] = 'FIWARE_SERVICE'
     os.environ[ZAICO_TOKEN] = 'ZAICO_TOKEN'
     os.environ[ORION_PATH] = 'ORION_PATH'
