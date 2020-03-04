@@ -22,13 +22,6 @@ def mocked_response(mocker):
     return mocker.MagicMock(spec=requests.Response)
 
 
-@pytest.fixture
-def reload_module():
-    importlib.reload(const)
-    importlib.reload(orion)
-    yield
-
-
 class TestOrionClient:
 
     @pytest.mark.parametrize('payload', [

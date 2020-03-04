@@ -1,3 +1,4 @@
+import os
 import json
 import importlib
 import requests
@@ -5,6 +6,8 @@ from unittest import mock
 
 import pytest
 import lazy_import
+
+from src.errors import RobotBusyError
 
 
 api = lazy_import.lazy_module('src.api')
@@ -132,7 +135,7 @@ class TestShipmentAPI:
         assert result.status_code == 400
         assert result.json == {'message': 'invalid payload'}
 
-    # Can not except RobotBusyError.
+    # RobotBusyError is unreachable code
     def test_post_500_error(self, app, mocked_api, mocked_response):
         payload = {'items': [
             {
@@ -353,3 +356,15 @@ class TestReceiveAPI:
                                         content_type='application/json')
         # OrionError is not defined on orion.py when raised error in orion_client.
         assert result.status_code == 500
+
+
+class TestRBMixin:
+
+    def test_rb_headers_success(self, app, mocked_api):
+        rb_mixin = api.RBMixin()
+        # AttributeError: module 'src.const' has no attribute 'SHIPMENTAPI_TOKEN'
+        SHIPMENTAPI_TOKEN = 'SHIPMENTAPI_TOKEN'
+        const.SHIPMENTAPI_TOKEN = SHIPMENTAPI_TOKEN
+        importlib.reload(const)
+        assert rb_mixin.rb_headers == {'Content-Type': 'application/json',
+                                       'Authorization': 'Bearer SHIPMENTAPI_TOKEN'}

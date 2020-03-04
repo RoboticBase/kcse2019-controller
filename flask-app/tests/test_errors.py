@@ -20,6 +20,19 @@ class DummyException(Exception):
         self.description = {'msg': args[0]}
 
 
+class TestException:
+
+    def test_robot_busy_error(self, mocker, app, errors):
+        robot_busy_error = errors.RobotBusyError(status_code=500,
+                                                 robot_id='robot_id')
+        assert robot_busy_error.status_code == 500
+        assert robot_busy_error.robot_id == 'robot_id'
+
+    def test_rb_error(self, mocker, app, errors):
+        robot_busy_error = errors.RBError(status_code=500)
+        assert robot_busy_error.status_code == 500
+
+
 class TestErrorHandler:
 
     def test_success(self, mocker, app, errors):
