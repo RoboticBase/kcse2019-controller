@@ -237,7 +237,7 @@ class TestShipmentAPI:
     @pytest.mark.parametrize('status_code, expected_code', [(404, 404),
                                                             (500, 500),
                                                             (400, 500)])
-    def test_update_zaico_put_error(self, app, mocked_api, mocked_response, status_code, expected_code):
+    def test_update_zaico_put_error(self, app, mocked_api, mocked_response, status_code, expected_code, mocker):
         payload = {
             'destination_id': '0',
             'items': [{
@@ -245,6 +245,19 @@ class TestShipmentAPI:
                 'reservation': '1'
             }]
         }
+        mocker_get_response = mocker.MagicMock()
+        mocker_get_response.status_code = 200
+        mocker_get_response.json.return_value = {
+            'quantity': 1,
+            'title': 'test',
+            'unit': '個',
+            'category': 'test_category',
+            'place': 'test_palce',
+            'code': 'test_code'
+        }
+
+        mocked_api.requests.get.return_value = mocker_get_response
+
         mocked_response.status_code = status_code
         mocked_response.json.return_value = {'result': 'success'}
         mocked_api.requests.put.return_value = mocked_response
@@ -325,6 +338,45 @@ class TestShipmentAPI:
             assert result.json == {'message': 'exception occured when notify shipment',
                                    'root_cause': ''}
 
+    def test_compensate_zaico_error(self, app, mocked_api, mocked_response, mocker):
+        payload = {
+            'destination_id': '0',
+            'items': [{
+                'id': '1',
+                'reservation': '1'
+            }]
+        }
+        update_zaico_response = {
+            'result': 'success',
+            'destination': {'id': 0, 'name': '目的地'},
+            'updated': [{'id': 1, 'prev_quantity': 1}]
+        }
+        mocked_response.json.return_value = {
+            'quantity': 1,
+            'title': 'test',
+            'unit': '個',
+            'category': 'test_category',
+            'place': 'test_palce',
+            'code': 'test_code'
+        }
+
+        mocked_response.status_code = 200
+        mocked_api.requests.get.return_value = mocked_response
+
+        mocked_put_response = mocker.MagicMock(spec=requests.Response)
+        mocked_put_response.status_code = 400
+        mocked_put_response.json.return_value = {'result': 'success'}
+        mocked_api.requests.put.return_value = mocked_put_response
+        with mock.patch('src.api.ShipmentAPI.send_cmd') as mocked_send_cmd:
+            mocked_send_cmd.side_effect = Exception
+            with mock.patch('src.api.ShipmentAPI._update_zaico') as mocked_update_zaico:
+                mocked_update_zaico.return_value = update_zaico_response
+                result = app.test_client().post(f'/api/v1/shipments/',
+                                                content_type='application/json',
+                                                data=json.dumps(payload))
+                assert result.status_code == 500
+                assert result.json == {'message': 'exception occured when notify shipment',
+                                       'root_cause': ''}
 
 class TestDeliveryAPI:
 
