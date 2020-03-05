@@ -126,16 +126,6 @@ class ShipmentAPI(RBMixin, MethodView):
 
             zaico_res.update(rb_res)
             return jsonify(zaico_res), 201
-        except RobotBusyError as e:
-            is_compensated, compensated = self._compensate_zaico(zaico_res)
-            if is_compensated:
-                return jsonify({'result': 'robot_busy', 'message': str(e), 'robot_id': e.robot_id}), e.status_code
-            else:
-                print(f'compensatation of Zaico is failed, {compensated}')
-                abort(500, {
-                    'message': 'can not get destination detail',
-                    'root_cause': str(e)
-                })
         except Exception as e:
             is_compensated, compensated = self._compensate_zaico(zaico_res)
             print(f'compensatation of Zaico is failed, {compensated}')
@@ -231,8 +221,6 @@ class __DeliveryReceiveAPIBase(RBMixin, MethodView):
             print(f'rb_result {rb_res}')
 
             return jsonify(rb_res), 201
-        except RobotBusyError as e:
-            return jsonify({'result': 'robot_busy', 'message': str(e), 'robot_id': e.robot_id}), e.status_code
         except Exception as e:
             return jsonify({'result': 'server error', 'message': str(e), 'robot_id': e.robot_id}), e.status_code
 
