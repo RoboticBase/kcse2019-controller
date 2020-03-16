@@ -5,6 +5,10 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
+pytest = "*"
+lazy-import = "*"
+pytest-mock = "*"
+pytest-cov = "*"
 
 [packages]
 flask = "~=1.0.0"
@@ -12,3 +16,7 @@ requests = "~=2.21.0"
 
 [requires]
 python_version = "3.7"
+
+[scripts]
+lint = "flake8"
+unittest = "pytest --cov=src --cov-report=term-missing"

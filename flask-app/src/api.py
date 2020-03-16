@@ -4,7 +4,6 @@ from flask import abort, jsonify, request
 from flask.views import MethodView
 
 from src import const, orion
-from src.errors import RobotBusyError
 
 import requests
 
@@ -89,16 +88,6 @@ class RBMixin:
     def __init__(self, *args, **kwargs):
         self._rb_headers = None
 
-    @property
-    def rb_headers(self):
-        if not self._rb_headers:
-            self._rb_headers = {
-                'Content-Type': 'application/json'
-            }
-            if const.SHIPMENTAPI_TOKEN in os.environ:
-                self._rb_headers['Authorization'] = f'Bearer {os.environ[const.SHIPMENTAPI_TOKEN]}'
-        return self._rb_headers
-
     def send_cmd(self, cmd):
         data = const.CMD_TML.replace('<<CMD>>', cmd)
         orion.patch_attr(MOBILE_ROBOT_SERVICEPATH, MOBILE_ROBOT_TYPE, MOBILE_ROBOT_ID, data)
@@ -126,16 +115,6 @@ class ShipmentAPI(RBMixin, MethodView):
 
             zaico_res.update(rb_res)
             return jsonify(zaico_res), 201
-        except RobotBusyError as e:
-            is_compensated, compensated = self._compensate_zaico(zaico_res)
-            if is_compensated:
-                return jsonify({'result': 'robot_busy', 'message': str(e), 'robot_id': e.robot_id}), e.status_code
-            else:
-                print(f'compensatation of Zaico is failed, {compensated}')
-                abort(500, {
-                    'message': 'can not get destination detail',
-                    'root_cause': str(e)
-                })
         except Exception as e:
             is_compensated, compensated = self._compensate_zaico(zaico_res)
             print(f'compensatation of Zaico is failed, {compensated}')
@@ -231,8 +210,6 @@ class __DeliveryReceiveAPIBase(RBMixin, MethodView):
             print(f'rb_result {rb_res}')
 
             return jsonify(rb_res), 201
-        except RobotBusyError as e:
-            return jsonify({'result': 'robot_busy', 'message': str(e), 'robot_id': e.robot_id}), e.status_code
         except Exception as e:
             return jsonify({'result': 'server error', 'message': str(e), 'robot_id': e.robot_id}), e.status_code
 
