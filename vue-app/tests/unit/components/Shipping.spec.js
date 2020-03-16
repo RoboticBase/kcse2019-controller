@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils'
 import Vuex from 'vuex'
-import store from '@/store'
 import Shipping from '@/components/Shipping.vue'
 
 import { localVue, before, after } from '@/../tests/vueCommon.js'
@@ -25,7 +24,7 @@ describe('Shippment.vue', () => {
         selectedDestination: ''
       },
       actions: {
-        postShipmentAction(context, payload) {
+        postShipmentAction(context, _payload) {
           context.commit('updateMessage', {message: 'test message', variant: 'success'})
         }
       },

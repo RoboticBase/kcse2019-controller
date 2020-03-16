@@ -1,13 +1,12 @@
-import os
 import json
 import importlib
 import requests
 from unittest import mock
 
+from src.errors import OrionError
+
 import pytest
 import lazy_import
-
-from src.errors import RobotBusyError
 
 
 api = lazy_import.lazy_module('src.api')
@@ -85,7 +84,8 @@ class TestDestinationAPI:
 
     @pytest.mark.parametrize('destination_id, message', [(1, {'message': 'destination(id=1) does not found'}),
                                                          ('test', {'message': 'can not get destination detail',
-                                                                   'root_cause': "invalid literal for int() with base 10: 'test'"})])
+                                                                   'root_cause': "invalid literal for int() " +
+                                                                   "with base 10: 'test'"})])
     def test_detail_error(self, app, mocked_api, mocked_response, destination_id, message):
         result = app.test_client().get(f'/api/v1/destinations/{destination_id}/',
                                        content_type='application/json')
@@ -148,8 +148,7 @@ class TestShipmentAPI:
             'destination': {'id': 0, 'name': '目的地'},
             'updated': []
         }
-        # OrionError is not defined on orion.py when raised error in orion_client.
-        mocked_api.orion.patch_attr.side_effect = NameError
+        mocked_api.orion.patch_attr.side_effect = OrionError
         with mock.patch('src.api.ShipmentAPI._update_zaico') as mocked_update_zaico:
             mocked_update_zaico.return_value = update_zaico_response
             result = app.test_client().post(f'/api/v1/shipments/',
@@ -378,6 +377,7 @@ class TestShipmentAPI:
                 assert result.json == {'message': 'exception occured when notify shipment',
                                        'root_cause': ''}
 
+
 class TestDeliveryAPI:
 
     def test_post_success(self, app, mocked_api, mocked_response):
@@ -387,10 +387,9 @@ class TestDeliveryAPI:
         assert result.json == {'delivery_robot': {'id': '', 'type': ''}}
 
     def test_post_error(self, app, mocked_api, mocked_response):
-        mocked_api.orion.patch_attr.side_effect = NameError
+        mocked_api.orion.patch_attr.side_effect = OrionError
         result = app.test_client().post(f'/api/v1/deliveries/',
                                         content_type='application/json')
-        # OrionError is not defined on orion.py when raised error in orion_client.
         assert result.status_code == 500
 
 
@@ -403,20 +402,7 @@ class TestReceiveAPI:
         assert result.json == {'delivery_robot': {'id': '', 'type': ''}}
 
     def test_post_error(self, app, mocked_api, mocked_response):
-        mocked_api.orion.patch_attr.side_effect = NameError
+        mocked_api.orion.patch_attr.side_effect = OrionError
         result = app.test_client().post(f'/api/v1/deliveries/',
                                         content_type='application/json')
-        # OrionError is not defined on orion.py when raised error in orion_client.
         assert result.status_code == 500
-
-
-class TestRBMixin:
-
-    def test_rb_headers_success(self, app, mocked_api):
-        rb_mixin = api.RBMixin()
-        # AttributeError: module 'src.const' has no attribute 'SHIPMENTAPI_TOKEN'
-        SHIPMENTAPI_TOKEN = 'SHIPMENTAPI_TOKEN'
-        const.SHIPMENTAPI_TOKEN = SHIPMENTAPI_TOKEN
-        importlib.reload(const)
-        assert rb_mixin.rb_headers == {'Content-Type': 'application/json',
-                                       'Authorization': 'Bearer SHIPMENTAPI_TOKEN'}

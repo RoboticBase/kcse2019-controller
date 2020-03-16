@@ -1,0 +1,24 @@
+matrix:
+  include:
+    - language: python
+      python:
+        - 3.7
+        - 3.8
+      install:
+        - "mkdir -p ./vue-app/dist/"
+        - "echo '<html></html>' > ./vue-app/dist/index.html"
+        - "pip install pipenv --upgrade-strategy=only-if-needed"
+        - "cd flask-app && pipenv install --dev --system"
+      script:
+        - "pipenv run lint"
+        - "pipenv run unittest"
+    - language: nodejs
+      nodejs:
+        - 10
+      cache:
+      directories:
+        - node_modules
+      script:
+        - "cd vue-app && npm install"
+        - "npm run lint"
+        - "npm run test:unit"

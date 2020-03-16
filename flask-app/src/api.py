@@ -4,7 +4,6 @@ from flask import abort, jsonify, request
 from flask.views import MethodView
 
 from src import const, orion
-from src.errors import RobotBusyError
 
 import requests
 
@@ -88,16 +87,6 @@ class DestinationAPI(MethodView):
 class RBMixin:
     def __init__(self, *args, **kwargs):
         self._rb_headers = None
-
-    @property
-    def rb_headers(self):
-        if not self._rb_headers:
-            self._rb_headers = {
-                'Content-Type': 'application/json'
-            }
-            if const.SHIPMENTAPI_TOKEN in os.environ:
-                self._rb_headers['Authorization'] = f'Bearer {os.environ[const.SHIPMENTAPI_TOKEN]}'
-        return self._rb_headers
 
     def send_cmd(self, cmd):
         data = const.CMD_TML.replace('<<CMD>>', cmd)
