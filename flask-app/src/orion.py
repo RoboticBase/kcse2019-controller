@@ -5,10 +5,12 @@ from urllib.parse import urljoin
 import requests
 
 from src import const
+from src.errors import OrionError
 
 FIWARE_SERVICE = os.environ.get(const.FIWARE_SERVICE, '')
-ORION_ENDPOINT = os.environ.get(const.ORION_ENDPOINT, '') 
+ORION_ENDPOINT = os.environ.get(const.ORION_ENDPOINT, '')
 ORION_PATH_TPL = urljoin(ORION_ENDPOINT, const.ORION_PATH)
+
 
 def patch_attr(fiware_servicepath, entity_type, entity_id, data):
     headers = {
