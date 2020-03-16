@@ -26,3 +26,8 @@ class RBError(Exception):
     def __init__(self, *args, **kwargs):
         self.status_code = kwargs.pop('status_code')
         super().__init__(*args, **kwargs)
+
+
+class OrionError(Exception):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

@@ -82,6 +82,9 @@ class TestOrionClient:
         importlib.reload(const)
         importlib.reload(orion)
         mocked_response.status_code = status_code
+        mocked_response.reason = "test reson"
+        mocked_response.text = "test text"
+        mocked_response.json.return_value = {'description': 'test description'}
         mocked_requests.patch.return_value = mocked_response
         orion.requests = mocked_requests
 
@@ -89,8 +92,8 @@ class TestOrionClient:
         fiware_service = 'FIWARE_SERVICE'
         entity_type = 'dummy_type'
         entity_id = 'dummy_id'
-        # OrionError is not defined on orion.py when raised error in orion_client
-        with pytest.raises(NameError):
+        # Raise OrionError
+        with pytest.raises(Exception):
             orion.patch_attr(fiware_servicepath, entity_type, entity_id, json.dumps(payload))
         endpoint = f'http://ORION_ENDPOINT/v2/entities/{entity_id}/attrs?type={entity_type}'
         headers = {

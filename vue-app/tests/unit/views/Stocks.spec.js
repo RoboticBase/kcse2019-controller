@@ -1,8 +1,7 @@
 import { mount } from '@vue/test-utils'
-import Vue from 'vue'
 import Vuex from 'vuex'
 import Stocks from '@/views/Stocks.vue'
-import { localVue, before, after } from '@/../tests/vueCommon.js'
+import { localVue } from '@/../tests/vueCommon.js'
 
 jest.mock('@/api')
 
@@ -15,9 +14,9 @@ describe('Stocks.vue', () => {
       destinations: []
     },
     actions: {
-      listDestinationsAction(context, payload) {
+      listDestinationsAction(_context, _payload) {
       },
-      listStocksAction(context, payload) {
+      listStocksAction(_context, _payload) {
         store.state.stocks = [
           { id: 1,
             code: "11111",

@@ -37,7 +37,7 @@ export function listDestinations() {
   }
 }
 
-export function postShipment(payload) {
+export function postShipment(_payload) {
   try {
     return new Promise(resolve => {
       resolve({
@@ -68,7 +68,7 @@ export function postShipment(payload) {
   }
 }
 
-function postDeliveryOrReceiving(endpoint) {
+function postDeliveryOrReceiving(_endpoint) {
   try {
     return new Promise(resolve => {
       resolve({

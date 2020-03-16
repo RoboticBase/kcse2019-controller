@@ -1,8 +1,7 @@
 import { mount } from '@vue/test-utils'
-import Vue from 'vue'
 import Vuex from 'vuex'
 import Deliveries from '@/views/Deliveries.vue'
-import { localVue, before, after } from '@/../tests/vueCommon.js'
+import { localVue } from '@/../tests/vueCommon.js'
 
 jest.mock('@/api')
 
@@ -13,7 +12,7 @@ describe('Deliveries.vue', () => {
       variant: ''
     },
     actions: {
-      postDeliveryAction(context, payload) {
+      postDeliveryAction(context, _payload) {
         context.commit('updateMessage', {message: 'test message', variant: 'success'})
       }
     },

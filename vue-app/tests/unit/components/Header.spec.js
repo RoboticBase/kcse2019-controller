@@ -1,8 +1,7 @@
 import { mount } from '@vue/test-utils'
-import Vuex from 'vuex'
 import Header from '@/components/Header.vue'
 
-import { localVue, before, after } from '@/../tests/vueCommon.js'
+import { before, after } from '@/../tests/vueCommon.js'
 
 beforeAll(before(jest))
 afterAll(after())
