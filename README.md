@@ -1,7 +1,9 @@
 # ksce2019-controller : An example business logics of RoboticBase
 This repository is an example business logics of "RoboticBase-core".
 
-[![Docker image size](https://img.shields.io/microbadger/image-size/roboticbase/ksce2019-controller.svg)](https://hub.docker.com/r/roboticbase/ksce2019-controller/)
+[![Docker badge](https://img.shields.io/docker/pulls/roboticbase/ksce2019-controller.svg)](https://hub.docker.com/r/roboticbase/ksce2019-controller/)
+[![TravisCI Status](https://api.travis-ci.org/RoboticBase/kcse2019-controller.svg?branch=master)](https://travis-ci.org/github/RoboticBase/kcse2019-controller/)
+
 
 ## Description
 "RoboticBase" is a robot management platform based on [FIWARE](http://www.fiware.org/) which enables you to manage and operate many kinds of robots and IoT devices as interactions of contexts.
